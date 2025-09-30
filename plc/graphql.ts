@@ -475,9 +475,36 @@ export function addPlcToSchema<
   });
   builder.queryField("plc", (t) =>
     t.field({
+      args: {
+        variableIds: t.arg({ type: ["String"], required: false }),
+      },
       type: PlcRef,
-      resolve: (_, _args, context) => {
-        return context.plc;
+      resolve: (_, args, context) => {
+        const { variableIds } = args;
+        const plc = context.plc;
+
+        // If variableIds is provided and non-empty, filter variables
+        if (variableIds && variableIds.length > 0) {
+          const filteredVariables = {} as typeof plc.runtime.variables;
+          for (const id of variableIds) {
+            const key = id as keyof typeof plc.runtime.variables;
+            if (plc.runtime.variables[key]) {
+              // deno-lint-ignore no-explicit-any
+              (filteredVariables as any)[id] = plc.runtime.variables[key];
+            }
+          }
+          // Return a modified PLC object with filtered variables
+          return {
+            ...plc,
+            runtime: {
+              ...plc.runtime,
+              variables: filteredVariables,
+            },
+          };
+        }
+
+        // Return full PLC context when no filter is provided
+        return plc;
       },
     })
   );
@@ -525,9 +552,37 @@ export function addPlcToSchema<
   );
   builder.subscriptionField("plc", (t) =>
     t.field({
+      args: {
+        variableIds: t.arg({ type: ["String"], required: false }),
+      },
       type: PlcRef,
       subscribe: () => pubsub.subscribe("plcUpdate"),
-      resolve: (payload) => payload,
+      resolve: (payload, args) => {
+        const { variableIds } = args;
+
+        // If variableIds is provided and non-empty, filter variables
+        if (variableIds && variableIds.length > 0) {
+          const filteredVariables = {} as typeof payload.runtime.variables;
+          for (const id of variableIds) {
+            const key = id as keyof typeof payload.runtime.variables;
+            if (payload.runtime.variables[key]) {
+              // deno-lint-ignore no-explicit-any
+              (filteredVariables as any)[id] = payload.runtime.variables[key];
+            }
+          }
+          // Return a modified PLC object with filtered variables
+          return {
+            ...payload,
+            runtime: {
+              ...payload.runtime,
+              variables: filteredVariables,
+            },
+          };
+        }
+
+        // If no filter provided, return full payload (backward compatible)
+        return payload;
+      },
     })
   );
 }

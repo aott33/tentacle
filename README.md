@@ -113,6 +113,49 @@ query {
     }
   }
 }
+
+# Get specific variables by filtering (reduces bandwidth)
+query {
+  plc(variableIds: ["temperature", "pressure"]) {
+    runtime {
+      variables {
+        id
+        value
+        datatype
+      }
+    }
+  }
+}
+```
+
+### Subscriptions
+
+Subscribe to real-time PLC updates:
+
+```graphql
+# Subscribe to all variables
+subscription {
+  plc {
+    runtime {
+      variables {
+        id
+        value
+      }
+    }
+  }
+}
+
+# Subscribe to specific variables only (reduces bandwidth)
+subscription {
+  plc(variableIds: ["temperature", "pressure"]) {
+    runtime {
+      variables {
+        id
+        value
+      }
+    }
+  }
+}
 ```
 
 ## Configuration

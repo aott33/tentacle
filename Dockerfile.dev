@@ -1,0 +1,14 @@
+# Development Dockerfile - runs with Deno runtime instead of compiling
+FROM denoland/deno:debian-2.1.9
+
+# Set the working directory
+WORKDIR /app
+
+# Copy application files
+COPY . .
+
+# Expose the port
+EXPOSE 4123
+
+# Cache dependencies and run simple example (no Redis/MQTT required)
+CMD ["sh", "-c", "deno cache --reload --node-modules-dir example-simple.ts && deno run --no-check -A --node-modules-dir example-simple.ts"]
