@@ -7,8 +7,11 @@ WORKDIR /app
 # Copy application files
 COPY . .
 
+# Cache dependencies with node_modules
+RUN deno cache --reload --node-modules-dir example-simple.ts
+
 # Expose the port
 EXPOSE 4123
 
-# Cache dependencies and run simple example (no Redis/MQTT required)
-CMD ["sh", "-c", "deno cache --reload --node-modules-dir example-simple.ts && deno run --no-check -A --node-modules-dir example-simple.ts"]
+# Run simple example (no Redis/MQTT required)
+CMD ["deno", "run", "--no-check", "-A", "--node-modules-dir", "example-simple.ts"]

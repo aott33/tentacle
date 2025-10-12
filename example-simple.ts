@@ -1,3 +1,19 @@
+/**
+ * Simple Tentacle PLC Example
+ *
+ * Run locally:
+ *   deno run -A example-simple.ts
+ *   deno run -A --watch example-simple.ts
+ *
+ * Docker commands:
+ *   docker build -f Dockerfile.dev -t simple-tentacle .
+ *   docker run -d --name simple-tentacle -p 4123:4123 simple-tentacle
+ *   docker logs -f simple-tentacle
+ *   docker stop simple-tentacle && docker rm simple-tentacle
+ *
+ * Access GraphQL Playground at: http://localhost:4123/graphql
+ */
+
 import {
   createTentacle,
   PlcMqtts,
